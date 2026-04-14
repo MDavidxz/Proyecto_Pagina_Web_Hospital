@@ -1,0 +1,123 @@
+/* === RESET Y BASE === */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body, html {
+  height: 100%;
+  width: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url('GdoGa.jpg') center center/cover no-repeat;
+  background-size: cover;
+}
+
+
+/* === CONTENEDOR CENTRAL === */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  z-index: 1;
+}
+
+.logo {
+  margin-bottom: 12px;
+}
+
+/* === TÍTULOS === */
+h1 {
+  font-size: 26px;
+  font-weight: 900;
+  color: #1a2a3a;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+h2 {
+  font-size: 14px;
+  font-weight: 400;
+  color: #2a4a5a;
+  margin-bottom: 24px;
+}
+
+/* === CONTENEDOR DEL FORMULARIO === */
+.login-container {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* === CAMPOS DE ENTRADA === */
+.input-group {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  width: 100%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.input-group .icon {
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.input-group input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 15px;
+  color: #1a2a3a;
+}
+
+.input-group input::placeholder {
+  color: #6a8a9a;
+}
+
+/* === BOTÓN INGRESAR === */
+.boton {
+  width: 100%;
+  padding: 13px;
+  background-color: #0F4276;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.boton:hover {
+  background-color: #0a2e54;
+}
+
+/* === LINKS DE ABAJO === */
+.link {
+  font-size: 13px;
+  color: #2a4a5a;
+  margin-bottom: 8px;
+}
+
+.link a {
+  color: #0F4276;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.link a:hover {
+  text-decoration: underline;
+}
