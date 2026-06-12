@@ -1,0 +1,202 @@
+{% extends "citas/base.html" %}
+{% load static %}
+
+{% block title %}Mensajes | Medicita{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        height: calc(100vh - 130px);
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        overflow: hidden;
+        display: flex;
+    }
+
+    .chat-sidebar {
+        width: 300px;
+        min-width: 260px;
+        border-right: 1px solid #E2E8F0;
+        background: #F8FAFC;
+        overflow-y: auto;
+    }
+
+    .chat-list-item {
+        padding: 14px 16px;
+        border-bottom: 1px solid #E2E8F0;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        transition: background 0.2s;
+    }
+
+    .chat-list-item:hover {
+        background-color: #F1F5F9;
+    }
+
+    .chat-list-item.active {
+        background-color: #E0E7FF;
+        border-left: 4px solid #2563EB;
+    }
+
+    .chat-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-header {
+        padding: 16px;
+        border-bottom: 1px solid #E2E8F0;
+        background: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .chat-messages {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background: #F8FAFC;
+    }
+
+    .message {
+        max-width: 70%;
+        padding: 10px 14px;
+        border-radius: 16px;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    .message.sent {
+        background: #2563EB;
+        color: white;
+        margin-left: auto;
+        border-bottom-right-radius: 4px;
+    }
+
+    .message.received {
+        background: #E2E8F0;
+        color: #0F172A;
+        border-bottom-left-radius: 4px;
+    }
+
+    .chat-input {
+        padding: 16px;
+        background: white;
+        border-top: 1px solid #E2E8F0;
+        display: flex;
+        gap: 10px;
+    }
+
+    .chat-input input {
+        flex: 1;
+        padding: 10px 16px;
+        border: 1px solid #CBD5E1;
+        border-radius: 25px;
+        outline: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1280px;">
+    <h4 class="fw-bold mb-3">Mensajes</h4>
+
+    <div class="chat-container">
+
+        <!-- Sidebar: Lista de Chats -->
+        <div class="chat-sidebar">
+            <div class="p-3 border-bottom bg-white">
+                <strong>{% if user_is_staff %}Mis pacientes{% else %}Mis médicos{% endif %}</strong>
+            </div>
+
+            {% for conv in conversations %}
+                <a href="?conversation={{ conv.id }}" 
+                   class="chat-list-item d-flex align-items-center {% if selected_conversation and selected_conversation.id == conv.id %}active{% endif %}">
+                    
+                    <img src="https://picsum.photos/id/1005/42/42" class="rounded-circle me-3" width="42" height="42" alt="">
+                    
+                    <div class="flex-grow-1">
+                        {% if user_is_staff %}
+                            <strong>{{ conv.paciente.get_full_name|default:conv.paciente.username }}</strong>
+                        {% else %}
+                            <strong>{{ conv.medico.get_full_name|default:conv.medico.username }}</strong>
+                        {% endif %}
+                        <div class="text-muted small text-truncate" style="max-width: 180px;">
+                            {% if conv.messages.last %}
+                                {{ conv.messages.last.content|truncatechars:35 }}
+                            {% else %}
+                                Sin mensajes
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            {% empty %}
+                <div class="p-3 text-muted small">
+                    {% if user_is_staff %}
+                        Aún no tienes chats con pacientes.
+                    {% else %}
+                        Aún no has iniciado ningún chat.
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Chat Principal -->
+        <div class="chat-main">
+            {% if selected_conversation %}
+                <!-- Header del Chat -->
+                <div class="chat-header">
+                    <img src="https://picsum.photos/id/1005/42/42" class="rounded-circle" width="42" height="42" alt="">
+                    <div>
+                        <strong>{{ other_user.get_full_name|default:other_user.username }}</strong>
+                        <div class="text-success small">En línea</div>
+                    </div>
+                </div>
+
+                <!-- Mensajes -->
+                <div class="chat-messages" id="chatMessages">
+                    {% for msg in messages %}
+                        <div class="message {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
+                            {{ msg.content }}
+                            <div style="font-size: 10px; opacity: 0.7; margin-top: 3px; text-align: right;">
+                                {{ msg.timestamp|date:"H:i" }}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center text-muted mt-5">
+                            <p>No hay mensajes aún.<br>Envía el primero.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Input para enviar mensaje -->
+                <div class="chat-input">
+                    <form method="POST" class="d-flex w-100 gap-2">
+                        {% csrf_token %}
+                        <input type="text" name="content" class="form-control rounded-pill" 
+                               placeholder="Escribe un mensaje..." required>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+
+            {% else %}
+                <!-- Cuando no hay chat seleccionado -->
+                <div class="d-flex align-items-center justify-content-center flex-grow-1 text-center">
+                    <div>
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <h5>Selecciona un chat</h5>
+                        <p class="text-muted">Elige una conversación para empezar a chatear.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

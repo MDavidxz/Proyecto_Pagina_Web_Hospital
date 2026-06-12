@@ -1,0 +1,52 @@
+{% extends "citas/base.html" %}
+{% load static %}
+
+{% block title %}Editar Cita | Medicita{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 700px;">
+
+    <h3 class="fw-bold mb-4">Editar Cita</h3>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">Especialidad</label>
+                    <input type="text" class="form-control" value="{{ cita.especialidad.nombre }}" readonly>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Doctor</label>
+                    <select name="medico_id" class="form-select" required>
+                        {% for medico in medicos %}
+                            <option value="{{ medico.id }}" {% if medico.id == cita.medico.id %}selected{% endif %}>
+                                Dr. {{ medico.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" name="fecha" class="form-control" value="{{ cita.fecha|date:'Y-m-d' }}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Hora</label>
+                        <input type="time" name="hora" class="form-control" value="{{ cita.hora }}" required>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary px-5">Guardar Cambios</button>
+                    <a href="{% url 'citas:mis_citas' %}" class="btn btn-secondary px-4">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

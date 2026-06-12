@@ -1,0 +1,51 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediCita</title>
+  <link rel="stylesheet" href="{% static 'accounts/css/login.css' %}">
+</head>
+<body>
+
+  
+  <div class="container">
+
+    <!-- Logo -->
+    <div class="logo">
+      <img src="{% static 'accounts/css/img/x3Dom-removebg-preview.png' %}" alt="Logo MediCita" width="150">
+    </div>
+
+    <h1>INICIAR SESIÓN</h1>
+    <h2>Accede a tu cuenta de MediCita</h2>
+
+    <!-- Formulario de login -->
+    <div class="login-container">
+  <form method="POST">
+    {% csrf_token %} {% if error %}
+      <p style="color: red; font-size: 14px; text-align: center;">{{ error }}</p>
+    {% endif %}
+
+    <div class="input-group">
+      <span class="icon">👤</span>
+      <input type="text" name="username" placeholder="Usuario" required>
+    </div>
+
+    <div class="input-group">
+      <span class="icon">🔒</span>
+      <input type="password" name="password" placeholder="Contraseña" required>
+    </div>
+
+    <button type="submit" class="boton">INGRESAR</button>
+
+    <p class="link">¿Olvidó su contraseña?</p>
+    <p class="link">¿Nuevo paciente? <a href="{% url 'register' %}">REGÍSTRATE AQUÍ</a></p>
+  </form>
+</div>
+
+  </div>
+
+</body>
+</html>

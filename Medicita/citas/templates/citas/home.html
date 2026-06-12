@@ -1,0 +1,196 @@
+{% extends "citas/base.html" %}
+{% load static %}
+
+{% block title %}Inicio | Medicita{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05);
+        transform: translateY(-2px);
+    }
+    
+    .quick-access-card {
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        padding: 1rem;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.3s ease;
+        display: block;
+    }
+    
+    .quick-access-card:hover {
+        border-color: #4A7DFF;
+        box-shadow: 0 4px 12px rgba(74, 125, 255, 0.1);
+    }
+    
+    .section-title {
+        font-weight: 700;
+        color: #0F172A;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-4" style="max-width: 1280px;">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">¡Bienvenido, {{ request.user.first_name|default:request.user.username }}! 👋</h2>
+            <p class="text-muted mb-0">Aquí tienes un resumen rápido de tu actividad médica.</p>
+        </div>
+        <a href="{% url 'citas:agendar_cita' %}" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold">
+            <i class="fas fa-plus me-2"></i> Agendar Cita
+        </a>
+    </div>
+
+    <!-- Indicadores Dinámicos -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3">
+                        <i class="fas fa-calendar-check fa-2x"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-1">Próxima cita</p>
+                        {% if proxima_cita %}
+                            <h5 class="fw-bold mb-0">{{ proxima_cita.fecha|date:"d M" }} • {{ proxima_cita.hora }}</h5>
+                        {% else %}
+                            <h5 class="fw-bold mb-0 text-muted">Sin próximas citas</h5>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-warning bg-opacity-10 text-warning rounded-3 p-3">
+                        <i class="fas fa-envelope fa-2x"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-1">Mensajes nuevos</p>
+                        <h5 class="fw-bold mb-0">{{ mensajes_nuevos }} mensajes pendientes</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-success bg-opacity-10 text-success rounded-3 p-3">
+                        <i class="fas fa-file-medical fa-2x"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-1">Historial médico</p>
+                        <h5 class="fw-bold mb-0">{{ historial_count }} registros</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Segunda fila -->
+    <div class="row g-4">
+
+        <!-- Próxima Cita Programada -->
+        <div class="col-lg-7">
+            <div class="card p-4 h-100">
+                <h6 class="section-title">Próxima cita programada</h6>
+                
+                {% if proxima_cita %}
+                    <div class="d-flex gap-4 align-items-center">
+                        <img src="https://picsum.photos/id/1005/80/80" class="rounded-circle border" width="80" height="80" alt="">
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold mb-1">{{ proxima_cita.medico.nombre }}</h6>
+                            <p class="text-muted mb-2">{{ proxima_cita.especialidad.nombre }} • {{ proxima_cita.medico.hospital|default:"" }}</p>
+                            
+                            <div class="row">
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Fecha</small>
+                                    <strong>{{ proxima_cita.fecha|date:"d M Y" }}</strong>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Hora</small>
+                                    <strong>{{ proxima_cita.hora }}</strong>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Duración</small>
+                                    <strong>30 minutos</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                        <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill">{{ proxima_cita.estado|title }}</span>
+                        <a href="{% url 'citas:mis_citas' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">Ver detalles</a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted">No tienes citas próximas programadas.</p>
+                        <a href="{% url 'citas:agendar_cita' %}" class="btn btn-primary">Agendar cita</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Accesos Rápidos -->
+        <div class="col-lg-5">
+            <div class="card p-4 h-100">
+                <h6 class="section-title">Accesos rápidos</h6>
+                
+                <div class="row g-3">
+                    <div class="col-6">
+                        <a href="{% url 'citas:agendar_cita' %}" class="quick-access-card d-block p-3 text-center">
+                            <i class="fas fa-plus-circle fa-2x text-primary mb-2"></i>
+                            <strong class="d-block">Agendar cita</strong>
+                            <small class="text-muted">Reserva tu próxima consulta</small>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'citas:mis_citas' %}" class="quick-access-card d-block p-3 text-center">
+                            <i class="fas fa-list fa-2x text-primary mb-2"></i>
+                            <strong class="d-block">Mis citas</strong>
+                            <small class="text-muted">Ver todas mis citas</small>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'citas:chat' %}" class="quick-access-card d-block p-3 text-center">
+                            <i class="fas fa-comments fa-2x text-primary mb-2"></i>
+                            <strong class="d-block">Mensajes</strong>
+                            <small class="text-muted">Chatea con tu médico</small>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'citas:perfil' %}" class="quick-access-card d-block p-3 text-center">
+                            <i class="fas fa-user fa-2x text-primary mb-2"></i>
+                            <strong class="d-block">Mi perfil</strong>
+                            <small class="text-muted">Gestiona tu información</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

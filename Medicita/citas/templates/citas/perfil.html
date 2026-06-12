@@ -1,0 +1,98 @@
+{% extends "citas/base.html" %}
+{% load static %}
+
+{% block title %}Mi Perfil | Medicita{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 950px;">
+
+    <h4 class="fw-bold mb-1">Mi Perfil</h4>
+    <p class="text-muted mb-4">Información de tu cuenta y preferencias.</p>
+
+    <!-- Cabecera -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body d-flex align-items-center gap-4 p-4">
+            <div class="position-relative">
+                {% if profile.photo %}
+                    <img src="{{ profile.photo.url }}" class="rounded-circle border" width="95" height="95" alt="">
+                {% else %}
+                    <img src="https://picsum.photos/id/1005/95/95" class="rounded-circle border" width="95" height="95" alt="">
+                {% endif %}
+
+                <form method="POST" enctype="multipart/form-data" style="position:absolute; bottom:-8px; right:-8px;">
+                    {% csrf_token %}
+                    <label class="btn btn-sm btn-primary rounded-pill px-3 py-1" style="cursor:pointer;">
+                        <i class="fas fa-camera"></i> Cambiar foto
+                        <input type="file" name="photo" class="d-none" onchange="this.form.submit()">
+                    </label>
+                </form>
+            </div>
+
+            <div>
+                <h4 class="mb-1">{{ user.get_full_name|default:user.username }}</h4>
+                <span class="badge bg-light text-dark">Paciente</span>
+                <p class="mb-1 mt-2"><i class="fas fa-envelope me-2"></i> {{ user.email }}</p>
+                <p><i class="fas fa-phone me-2"></i> {{ profile.phone|default:"Sin teléfono" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información Personal -->
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between bg-white">
+            <h6 class="fw-semibold">Información personal</h6>
+            <button class="btn btn-sm btn-outline-primary" onclick="document.getElementById('formEdit').classList.toggle('d-none')">
+                <i class="fas fa-edit"></i> Editar
+            </button>
+        </div>
+        <div class="card-body">
+
+            <!-- Formulario -->
+            <form method="POST" id="formEdit" class="d-none mb-4">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label>Nombres</label>
+                        <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Apellidos</label>
+                        <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Teléfono</label>
+                        <input type="text" name="phone" class="form-control" value="{{ profile.phone }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Correo electrónico</label>
+                        <input type="email" name="email" class="form-control" value="{{ user.email }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Fecha de nacimiento</label>
+                        <input type="date" name="fecha_nacimiento" class="form-control" value="{{ profile.fecha_nacimiento|date:'Y-m-d' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Género</label>
+                        <select name="genero" class="form-select">
+                            <option value="Masculino" {% if profile.genero == "Masculino" %}selected{% endif %}>Masculino</option>
+                            <option value="Femenino" {% if profile.genero == "Femenino" %}selected{% endif %}>Femenino</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Guardar cambios</button>
+            </form>
+
+            <!-- Vista de datos -->
+            <div class="row g-3">
+                <div class="col-md-6"><strong>Nombres:</strong> {{ user.first_name|default:"-" }}</div>
+                <div class="col-md-6"><strong>Apellidos:</strong> {{ user.last_name|default:"-" }}</div>
+                <div class="col-md-6"><strong>Teléfono:</strong> {{ profile.phone|default:"-" }}</div>
+                <div class="col-md-6"><strong>Correo:</strong> {{ user.email }}</div>
+                <div class="col-md-6"><strong>Fecha de nacimiento:</strong> {{ profile.fecha_nacimiento|date:"d/m/Y"|default:"-" }}</div>
+                <div class="col-md-6"><strong>Género:</strong> {{ profile.genero|default:"-" }}</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

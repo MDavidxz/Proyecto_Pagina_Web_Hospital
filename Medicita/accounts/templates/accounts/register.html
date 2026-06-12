@@ -1,0 +1,283 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear Cuenta | MediCita</title>
+  <link rel="stylesheet" href="{% static 'accounts/css/login.css' %}">
+
+  <!-- Flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+  <style>
+    body {
+      background: url('{% static "accounts/css/img/GdoGa.jpg" %}') center/cover no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .register-card {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px 22px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 520px;
+    }
+
+    h1 {
+      font-size: 19px;
+      font-weight: 700;
+      color: #1a2a3a;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #2a4a5a;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 14px;
+    }
+
+    .form-group {
+      margin-bottom: 8px;
+    }
+
+    .form-group label {
+      font-size: 11px;
+      color: #2a4a5a;
+      margin-bottom: 3px;
+      display: block;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 7px 9px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .error {
+      color: #dc2626;
+      font-size: 10.5px;
+      margin-top: 2px;
+      display: none;
+    }
+
+    .boton {
+      width: 100%;
+      padding: 9px;
+      background-color: #0F4276;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #2a4a5a;
+    }
+
+    .link a {
+      color: #0F4276;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    /* === CALENDARIO MÁS PEQUEÑO === */
+    .flatpickr-calendar {
+      width: 255px !important;
+      font-size: 12px !important;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+      border-radius: 10px;
+      padding: 5px;
+    }
+
+    .flatpickr-day {
+      width: 28px !important;
+      height: 28px !important;
+      line-height: 28px !important;
+      font-size: 12px;
+      margin: 1px;
+    }
+
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+      background: #0F4276;
+      border-color: #0F4276;
+    }
+
+    .flatpickr-day:hover {
+      background: #e0e7ff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="register-card">
+
+    <div style="text-align: center; margin-bottom: 6px;">
+      <img src="{% static 'accounts/css/img/x3Dom-removebg-preview.png' %}" alt="Logo MediCita" width="85">
+    </div>
+
+    <h1>CREAR CUENTA</h1>
+    <p class="subtitle">Regístrate en MediCita</p>
+
+    <form id="registerForm" method="POST" novalidate>
+      {% csrf_token %}
+
+      <div class="form-grid">
+
+        <!-- Columna Izquierda -->
+        <div class="form-group">
+          <label>Usuario</label>
+          <input type="text" id="username" name="username">
+          <div class="error" id="err-username">Campo obligatorio.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" id="email" name="email">
+          <div class="error" id="err-email">Campo obligatorio.</div>
+        </div>
+
+        <!-- Fecha de nacimiento con Flatpickr -->
+        <div class="form-group">
+          <label>Fecha de nacimiento</label>
+          <input type="text" id="fecha_nacimiento" name="fecha_nacimiento" placeholder="Selecciona fecha" readonly>
+          <div class="error" id="err-fecha">Campo obligatorio.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Cédula de identidad</label>
+          <input type="text" id="cedula" name="cedula">
+          <div class="error" id="err-cedula">Campo obligatorio.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="tel" id="telefono" name="telefono">
+          <div class="error" id="err-telefono">Campo obligatorio.</div>
+        </div>
+
+        <!-- Columna Derecha -->
+        <div class="form-group">
+          <label>Dirección</label>
+          <input type="text" id="direccion" name="direccion">
+          <div class="error" id="err-direccion">Campo obligatorio.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Contacto de emergencia</label>
+          <input type="text" id="contacto_emergencia" name="contacto_emergencia">
+          <div class="error" id="err-contacto">Campo obligatorio.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Número de contacto de emergencia</label>
+          <input type="tel" id="numero_emergencia" name="numero_emergencia">
+          <div class="error" id="err-numero">Campo obligatorio.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" id="pass1" name="password1">
+          <div class="error" id="err-pass1">Campo obligatorio.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Confirmar contraseña</label>
+          <input type="password" id="pass2" name="password2">
+          <div class="error" id="err-pass2">Campo obligatorio.</div>
+        </div>
+
+      </div>
+
+      <button type="submit" class="boton">REGISTRARSE</button>
+
+      <p class="link">¿Ya tienes cuenta? <a href="{% url 'login' %}">INICIA SESIÓN</a></p>
+    </form>
+
+  </div>
+
+  <!-- Flatpickr -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+
+  <script>
+    flatpickr("#fecha_nacimiento", {
+      locale: "es",
+      dateFormat: "d/m/Y",
+      maxDate: "2026-12-31",
+      disableMobile: true,
+      monthSelectorType: "static",
+      onReady: function(selectedDates, dateStr, instance) {
+        instance.weekdayContainer.innerHTML = `
+          <span class="flatpickr-weekday">D</span>
+          <span class="flatpickr-weekday">L</span>
+          <span class="flatpickr-weekday">M</span>
+          <span class="flatpickr-weekday">M</span>
+          <span class="flatpickr-weekday">J</span>
+          <span class="flatpickr-weekday">V</span>
+          <span class="flatpickr-weekday">S</span>
+        `;
+      }
+    });
+
+    const form = document.getElementById('registerForm');
+
+    form.addEventListener('submit', function(e) {
+      let isValid = true;
+      document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
+
+      const campos = [
+        'username', 'email', 'fecha_nacimiento', 'cedula', 'telefono',
+        'direccion', 'contacto_emergencia', 'numero_emergencia',
+        'pass1', 'pass2'
+      ];
+
+      campos.forEach(id => {
+        const input = document.getElementById(id);
+        let errorId = 'err-' + id;
+
+        if (id === 'pass1') errorId = 'err-pass1';
+        if (id === 'pass2') errorId = 'err-pass2';
+
+        const errorDiv = document.getElementById(errorId);
+
+        if (input && !input.value.trim()) {
+          if (errorDiv) errorDiv.style.display = 'block';
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        e.preventDefault();
+      }
+    });
+  </script>
+
+</body>
+</html>
