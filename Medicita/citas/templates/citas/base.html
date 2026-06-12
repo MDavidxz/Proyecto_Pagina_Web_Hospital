@@ -127,7 +127,7 @@
             <div class="dropdown">
                 <a href="#" class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
                     <img src="https://picsum.photos/id/1005/36/36" class="rounded-circle border" width="36" height="36" alt="">
-                    <span class="fw-semibold d-none d-md-inline">Melquiades David</span>
+                    <span class="fw-semibold d-none d-md-inline">  {{ user.get_username }} </span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="{% url 'citas:perfil' %}">Mi Perfil</a></li>
