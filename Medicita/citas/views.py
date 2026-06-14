@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 import json
+from datetime import datetime
 
 from .models import Especialidad, Medico, Cita, Conversation, Message, Profile
 
@@ -28,6 +29,19 @@ def agendar_cita(request):
 
             especialidad = Especialidad.objects.get(id=especialidad_id)
             medico = Medico.objects.get(id=medico_id)
+
+            # Evitar que el paciente tenga dos citas activas en la misma fecha y hora
+            choque = Cita.objects.filter(
+                paciente=request.user,
+                fecha=fecha,
+                hora=hora
+            ).exclude(estado='cancelada').exists()
+
+            if choque:
+                return JsonResponse({
+                    "success": False,
+                    "error": "Ya tienes una cita agendada en esa fecha y hora."
+                }, status=400)
 
             cita = Cita.objects.create(
                 paciente=request.user,
@@ -56,9 +70,19 @@ def agendar_cita(request):
     especialidades = list(Especialidad.objects.values('id', 'nombre'))
     medicos = list(Medico.objects.values('id', 'nombre', 'especialidad_id', 'hospital', 'anos_experiencia'))
 
+    # Citas activas del paciente, para bloquear horarios ya ocupados en el calendario
+    citas_existentes = list(
+        Cita.objects.filter(paciente=request.user)
+        .exclude(estado='cancelada')
+        .values('fecha', 'hora')
+    )
+    for c in citas_existentes:
+        c['fecha'] = c['fecha'].strftime('%Y-%m-%d')
+
     context = {
         'especialidades': especialidades,
         'medicos': medicos,
+        'citas_existentes': citas_existentes,
     }
     return render(request, 'citas/agendar_cita.html', context)
 
@@ -97,29 +121,84 @@ def mis_citas(request):
     return render(request, 'citas/mis_citas.html', {'citas': citas})
 
 
-# ==================== EDITAR CITA (Mejorada) ====================
 @login_required
 def editar_cita(request, cita_id):
     cita = get_object_or_404(Cita, id=cita_id, paciente=request.user)
 
-    if request.method == 'POST':
-        cita.fecha = request.POST.get('fecha')
-        cita.hora = request.POST.get('hora')
-        
-        # Cambiar médico si se selecciona uno diferente
-        medico_id = request.POST.get('medico_id')
-        if medico_id:
-            cita.medico = get_object_or_404(Medico, id=medico_id)
-        
-        cita.save()
-        messages.success(request, 'Cita actualizada correctamente.')
-        return redirect('citas:mis_citas')
+    TIEMPOS_DISPONIBLES = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+                           '11:00', '11:30', '14:00', '14:30', '15:00', '15:30']
+    HORAS_OCUPADAS = ['09:00', '14:00']
+    DIAS_NO_DISPONIBLES = [13, 17, 22]
 
-    # Pasar lista de médicos para poder cambiar de doctor
-    medicos = Medico.objects.all()
+    if request.method == 'POST':
+        especialidad_id = request.POST.get('especialidad_id')
+        medico_id = request.POST.get('medico_id')
+        fecha = request.POST.get('fecha')
+        hora = request.POST.get('hora')
+
+        errores = []
+        fecha_obj = None
+
+        try:
+            fecha_obj = datetime.strptime(fecha, '%Y-%m-%d').date()
+            dia = fecha_obj.day
+            if not (12 <= dia <= 28) or dia in DIAS_NO_DISPONIBLES:
+                errores.append('La fecha seleccionada no está disponible para el médico.')
+        except (ValueError, TypeError):
+            errores.append('La fecha ingresada no es válida.')
+
+        if hora not in TIEMPOS_DISPONIBLES:
+            errores.append('La hora seleccionada no es válida.')
+        elif hora in HORAS_OCUPADAS and hora != cita.hora:
+            errores.append('La hora seleccionada ya no está disponible.')
+
+        medico = Medico.objects.filter(id=medico_id).first()
+        if not medico:
+            errores.append('El médico seleccionado no existe.')
+        elif str(medico.especialidad_id) != str(especialidad_id):
+            errores.append('El médico no pertenece a la especialidad seleccionada.')
+
+        # Evitar choque con OTRA cita ACTIVA del paciente en la misma fecha y hora
+        if fecha_obj and hora:
+            choque = Cita.objects.filter(
+                paciente=request.user,
+                fecha=fecha_obj,
+                hora=hora
+            ).exclude(id=cita.id).exclude(estado='cancelada').exists()
+
+            if choque:
+                errores.append('Ya tienes otra cita activa en esa misma fecha y hora.')
+
+        if errores:
+            for e in errores:
+                messages.error(request, e)
+        else:
+            cita.especialidad_id = especialidad_id
+            cita.medico = medico
+            cita.fecha = fecha_obj
+            cita.hora = hora
+            cita.save()
+            messages.success(request, 'Cita actualizada correctamente.')
+            return redirect('citas:mis_citas')
+
+    especialidades = list(Especialidad.objects.values('id', 'nombre'))
+    medicos = list(Medico.objects.values('id', 'nombre', 'especialidad_id', 'hospital', 'anos_experiencia'))
+
+    # Otras citas activas del paciente (sin contar esta), para bloquear horarios en el calendario
+    citas_existentes = list(
+        Cita.objects.filter(paciente=request.user)
+        .exclude(estado='cancelada')
+        .exclude(id=cita.id)
+        .values('fecha', 'hora')
+    )
+    for c in citas_existentes:
+        c['fecha'] = c['fecha'].strftime('%Y-%m-%d')
+
     context = {
         'cita': cita,
-        'medicos': medicos
+        'especialidades': especialidades,
+        'medicos': medicos,
+        'citas_existentes': citas_existentes,
     }
     return render(request, 'citas/editar_cita.html', context)
 
@@ -128,7 +207,16 @@ def editar_cita(request, cita_id):
 @login_required
 def cancelar_cita(request, cita_id):
     cita = get_object_or_404(Cita, id=cita_id, paciente=request.user)
-    cita.delete()                     # ← Elimina completamente la cita
+    cita.estado = 'cancelada'
+    cita.save()
+    messages.success(request, 'Cita cancelada correctamente.')
+    return redirect('citas:mis_citas')
+
+
+@login_required
+def eliminar_cita(request, cita_id):
+    cita = get_object_or_404(Cita, id=cita_id, paciente=request.user)
+    cita.delete()
     messages.success(request, 'Cita eliminada correctamente.')
     return redirect('citas:mis_citas')
 

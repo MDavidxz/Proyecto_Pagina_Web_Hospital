@@ -36,7 +36,7 @@ class Cita(models.Model):
 
     def __str__(self):
         return f"{self.paciente} - {self.medico} ({self.fecha})"
-    
+
 # =============================================
 # MODELO DE CONVERSACIÓN (Chat entre paciente y médico)
 # =============================================
@@ -55,7 +55,7 @@ class Conversation(models.Model):
     last_message_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('paciente', 'medico')  # Solo puede haber un chat entre los mismos dos usuarios
+        unique_together = ('paciente', 'medico')
         ordering = ['-last_message_at']
 
     def __str__(self):
@@ -76,7 +76,7 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['timestamp']  # Los mensajes se ordenan por fecha
+        ordering = ['timestamp']
 
     def __str__(self):
         return f"{self.sender.username}: {self.content[:50]}"
@@ -100,6 +100,8 @@ class Profile(models.Model):
     codigo_postal = models.CharField(max_length=20, blank=True)
     genero = models.CharField(max_length=20, blank=True)
     photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
+    contacto_emergencia = models.CharField(max_length=150, blank=True)
+    numero_emergencia = models.CharField(max_length=20, blank=True)
 
     def __str__(self):
         return f"Perfil de {self.user.username}"

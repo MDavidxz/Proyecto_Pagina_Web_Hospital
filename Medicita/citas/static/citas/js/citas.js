@@ -16,21 +16,16 @@ let selected = {
 
 let especialidadesData = [];
 let medicosData = [];
+let citasExistentesData = [];
 
 function initWizard() {
-    // Cargar datos reales de Django
-    const espScript = document.getElementById('especialidades-data');
-    const medScript = document.getElementById('medicos-data');
+    especialidadesData = JSON.parse(document.getElementById('especialidades-data').textContent);
+    medicosData = JSON.parse(document.getElementById('medicos-data').textContent);
+    citasExistentesData = JSON.parse(document.getElementById('citas-existentes-data').textContent);
 
-    if (espScript) {
-        especialidadesData = JSON.parse(espScript.textContent);
-    }
-    if (medScript) {
-        medicosData = JSON.parse(medScript.textContent);
-    }
-
-    console.log("Especialidades cargadas:", especialidadesData); // Para depurar
-    console.log("Médicos cargados:", medicosData); // Para depurar
+    console.log("Especialidades cargadas:", especialidadesData);
+    console.log("Médicos cargados:", medicosData);
+    console.log("Citas existentes:", citasExistentesData);
 
     renderEspecialidades();
     initCalendar();
@@ -191,9 +186,13 @@ function renderTimeSlots() {
         btn.style.minWidth = '72px';
         btn.textContent = time;
 
-        if (occupied.includes(time)) {
+        // ¿El paciente ya tiene otra cita activa en esta fecha y hora?
+        const conflicto = citasExistentesData.some(c => c.fecha === selected.fecha && c.hora === time);
+
+        if (occupied.includes(time) || conflicto) {
             btn.disabled = true;
             btn.style.opacity = '0.5';
+            if (conflicto) btn.title = 'Ya tienes una cita agendada a esta hora';
         } else {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('#time-slots-grid .time-slot').forEach(b => b.classList.remove('selected'));

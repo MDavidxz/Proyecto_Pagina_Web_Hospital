@@ -6,14 +6,9 @@
 {% block content %}
 <div class="container py-4" style="max-width: 1100px;">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold mb-1">Mis Citas</h3>
-            <p class="text-muted">Administra tus citas médicas</p>
-        </div>
-        <a href="{% url 'citas:agendar_cita' %}" class="btn btn-primary rounded-pill px-4">
-            <i class="fas fa-plus me-2"></i> Agendar Nueva Cita
-        </a>
+    <div class="mb-4">
+        <h3 class="fw-bold mb-1">Mis Citas</h3>
+        <p class="text-muted">Administra tus citas médicas</p>
     </div>
 
     {% if citas %}
@@ -27,9 +22,18 @@
                                 <h5 class="card-title mb-1">{{ cita.especialidad.nombre }}</h5>
                                 <p class="text-muted mb-0">Dr. {{ cita.medico.nombre }}</p>
                             </div>
-                            <span class="badge bg-{% if cita.estado == 'confirmada' %}success{% elif cita.estado == 'pendiente' %}warning text-dark{% else %}secondary{% endif %}">
-                                {{ cita.estado|title }}
-                            </span>
+                            <div class="d-flex flex-column align-items-end gap-2">
+                                <span class="badge bg-{% if cita.estado == 'confirmada' %}success{% elif cita.estado == 'pendiente' %}warning text-dark{% else %}secondary{% endif %}">
+                                    {{ cita.estado|title }}
+                                </span>
+                                <a href="{% url 'citas:eliminar_cita' cita.id %}"
+                                   class="btn btn-outline-danger btn-sm rounded-circle"
+                                   style="width: 32px; height: 32px;"
+                                   title="Eliminar"
+                                   onclick="return confirm('¿Eliminar esta cita permanentemente? Esta acción no se puede deshacer.');">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
                         </div>
 
                         <p><strong>Fecha:</strong> {{ cita.fecha|date:"d M Y" }}</p>
@@ -37,17 +41,19 @@
 
                         <div class="d-flex gap-2 mt-4">
                             <!-- Botón Editar -->
-                            <a href="{% url 'citas:editar_cita' cita.id %}" 
-                               class="btn btn-outline-primary btn-sm flex-fill">
+                            <a href="{% url 'citas:editar_cita' cita.id %}"
+                               class="btn btn-primary rounded-pill btn-sm flex-fill">
                                 <i class="fas fa-edit"></i> Editar
                             </a>
 
-                            <!-- Botón Cancelar -->
-                            <a href="{% url 'citas:cancelar_cita' cita.id %}" 
-                               class="btn btn-outline-danger btn-sm flex-fill"
-                               onclick="return confirm('¿Estás seguro de que deseas cancelar esta cita? Esta acción no se puede deshacer.');">
+                            <!-- Botón Cancelar (solo si no está ya cancelada) -->
+                            {% if cita.estado != 'cancelada' %}
+                            <a href="{% url 'citas:cancelar_cita' cita.id %}"
+                               class="btn btn-danger rounded-pill btn-sm flex-fill"
+                               onclick="return confirm('¿Estás seguro de que deseas cancelar esta cita?');">
                                 <i class="fas fa-times"></i> Cancelar
                             </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

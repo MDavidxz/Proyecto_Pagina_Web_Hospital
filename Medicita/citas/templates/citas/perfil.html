@@ -14,9 +14,9 @@
         <div class="card-body d-flex align-items-center gap-4 p-4">
             <div class="position-relative">
                 {% if profile.photo %}
-                    <img src="{{ profile.photo.url }}" class="rounded-circle border" width="95" height="95" alt="">
+                    <img src="{{ profile.photo.url }}" class="rounded-circle border" width="95" height="95" style="object-fit: cover;" alt="">
                 {% else %}
-                    <img src="https://picsum.photos/id/1005/95/95" class="rounded-circle border" width="95" height="95" alt="">
+                    <img src="{{ default_avatar_url }}" class="rounded-circle border" width="95" height="95" style="object-fit: cover;" alt="">
                 {% endif %}
 
                 <form method="POST" enctype="multipart/form-data" style="position:absolute; bottom:-8px; right:-8px;">
@@ -74,9 +74,26 @@
                     <div class="col-md-6">
                         <label>Género</label>
                         <select name="genero" class="form-select">
+                            <option value="">-- Selecciona --</option>
                             <option value="Masculino" {% if profile.genero == "Masculino" %}selected{% endif %}>Masculino</option>
                             <option value="Femenino" {% if profile.genero == "Femenino" %}selected{% endif %}>Femenino</option>
                         </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Cédula de identidad</label>
+                        <input type="text" name="cedula" class="form-control" value="{{ profile.cedula }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Dirección</label>
+                        <input type="text" name="direccion" class="form-control" value="{{ profile.direccion }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Contacto de emergencia</label>
+                        <input type="text" name="contacto_emergencia" class="form-control" value="{{ profile.contacto_emergencia }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Número de emergencia</label>
+                        <input type="text" name="numero_emergencia" class="form-control" value="{{ profile.numero_emergencia }}">
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary mt-3">Guardar cambios</button>
@@ -87,9 +104,13 @@
                 <div class="col-md-6"><strong>Nombres:</strong> {{ user.first_name|default:"-" }}</div>
                 <div class="col-md-6"><strong>Apellidos:</strong> {{ user.last_name|default:"-" }}</div>
                 <div class="col-md-6"><strong>Teléfono:</strong> {{ profile.phone|default:"-" }}</div>
-                <div class="col-md-6"><strong>Correo:</strong> {{ user.email }}</div>
+                <div class="col-md-6"><strong>Correo:</strong> {{ user.email|default:"-" }}</div>
                 <div class="col-md-6"><strong>Fecha de nacimiento:</strong> {{ profile.fecha_nacimiento|date:"d/m/Y"|default:"-" }}</div>
                 <div class="col-md-6"><strong>Género:</strong> {{ profile.genero|default:"-" }}</div>
+                <div class="col-md-6"><strong>Cédula:</strong> {{ profile.cedula|default:"-" }}</div>
+                <div class="col-md-6"><strong>Dirección:</strong> {{ profile.direccion|default:"-" }}</div>
+                <div class="col-md-6"><strong>Contacto de emergencia:</strong> {{ profile.contacto_emergencia|default:"-" }}</div>
+                <div class="col-md-6"><strong>Número de emergencia:</strong> {{ profile.numero_emergencia|default:"-" }}</div>
             </div>
         </div>
     </div>

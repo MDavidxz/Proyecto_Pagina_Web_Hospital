@@ -10,5 +10,6 @@ urlpatterns = [
     path('perfil/', views.perfil, name='perfil'),
     path('mis-citas/', views.mis_citas, name='mis_citas'),
     path('editar-cita/<int:cita_id>/', views.editar_cita, name='editar_cita'),
-    path('cancelar-cita/<int:cita_id>/', views.cancelar_cita, name='cancelar_cita'),
+    path('mis-citas/<int:cita_id>/eliminar/', views.eliminar_cita, name='eliminar_cita'),
+    path('mis-citas/<int:cita_id>/cancelar/', views.cancelar_cita, name='cancelar_cita'),
 ]

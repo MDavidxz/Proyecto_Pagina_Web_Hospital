@@ -442,5 +442,10 @@
 <script src="{% static 'citas/js/citas.js' %}"></script>
 
 <!-- Pasar datos reales desde Django -->
-{{ especialidades|json_script:"especialidades-data" }} {{
-medicos|json_script:"medicos-data" }} {% endblock %}
+<!-- ==================== DATOS PARA JAVASCRIPT ==================== -->
+{{ especialidades|json_script:"especialidades-data" }}
+{{ medicos|json_script:"medicos-data" }}
+{{ citas_existentes|json_script:"citas-existentes-data" }}
+
+<script src="{% static 'citas/js/citas.js' %}"></script>
+{% endblock %}

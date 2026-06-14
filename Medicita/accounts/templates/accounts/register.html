@@ -63,12 +63,19 @@
       display: block;
     }
 
-    .form-group input {
+    .form-group input,
+    .form-group select {
       width: 100%;
       padding: 7px 9px;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
       font-size: 13px;
+    }
+
+    .hint {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 2px;
     }
 
     .error {
@@ -104,21 +111,86 @@
       text-decoration: none;
     }
 
-    /* === CALENDARIO MÁS PEQUEÑO === */
+    /* === CALENDARIO MEJORADO === */
     .flatpickr-calendar {
-      width: 255px !important;
-      font-size: 12px !important;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
-      border-radius: 10px;
-      padding: 5px;
+      width: 280px !important;
+      font-size: 13px !important;
+      box-shadow: 0 10px 30px rgba(15, 66, 118, 0.18);
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      padding: 10px;
+    }
+
+    .flatpickr-months {
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .flatpickr-months .flatpickr-month {
+      color: #0F4276;
+      fill: #0F4276;
+      height: 38px;
+    }
+
+    .flatpickr-current-month {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0F4276;
+      padding-top: 2px;
+    }
+
+    .flatpickr-current-month .flatpickr-monthDropdown-months {
+      font-weight: 700;
+      color: #0F4276;
+      border-radius: 6px;
+      padding: 2px 4px;
+    }
+
+    .flatpickr-current-month input.cur-year {
+      font-weight: 700;
+      color: #0F4276;
+    }
+
+    .flatpickr-prev-month,
+    .flatpickr-next-month {
+      border-radius: 50%;
+      transition: background 0.15s ease;
+    }
+
+    .flatpickr-prev-month:hover,
+    .flatpickr-next-month:hover {
+      background: #e0e7ff;
+    }
+
+    .flatpickr-prev-month svg,
+    .flatpickr-next-month svg {
+      fill: #0F4276 !important;
+    }
+
+    .flatpickr-weekdays {
+      margin-bottom: 4px;
+    }
+
+    span.flatpickr-weekday {
+      font-weight: 700;
+      color: #64748b;
+      font-size: 11px;
+      text-transform: uppercase;
     }
 
     .flatpickr-day {
-      width: 28px !important;
-      height: 28px !important;
-      line-height: 28px !important;
-      font-size: 12px;
-      margin: 1px;
+      width: 32px !important;
+      height: 32px !important;
+      line-height: 32px !important;
+      font-size: 12.5px;
+      margin: 2px;
+      border-radius: 50%;
+      color: #1a2a3a;
+      transition: all 0.15s ease;
+    }
+
+    .flatpickr-day.today {
+      border-color: #0F4276;
     }
 
     .flatpickr-day.selected,
@@ -126,10 +198,25 @@
     .flatpickr-day.endRange {
       background: #0F4276;
       border-color: #0F4276;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(15, 66, 118, 0.35);
     }
 
     .flatpickr-day:hover {
       background: #e0e7ff;
+      color: #0F4276;
+    }
+
+    .flatpickr-day.flatpickr-disabled,
+    .flatpickr-day.flatpickr-disabled:hover {
+      color: #cbd5e1 !important;
+      background: transparent !important;
+      cursor: not-allowed;
+    }
+
+    .flatpickr-day.nextMonthDay,
+    .flatpickr-day.prevMonthDay {
+      color: #cbd5e1;
     }
   </style>
 </head>
@@ -162,11 +249,35 @@
           <div class="error" id="err-email">Campo obligatorio.</div>
         </div>
 
+        <div class="form-group">
+          <label>Nombres</label>
+          <input type="text" id="first_name" name="first_name">
+          <div class="error" id="err-first_name">Campo obligatorio.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Apellidos</label>
+          <input type="text" id="last_name" name="last_name">
+          <div class="error" id="err-last_name">Campo obligatorio.</div>
+        </div>
+
         <!-- Fecha de nacimiento con Flatpickr -->
         <div class="form-group">
           <label>Fecha de nacimiento</label>
           <input type="text" id="fecha_nacimiento" name="fecha_nacimiento" placeholder="Selecciona fecha" readonly>
+          <div class="hint">Debes ser mayor de 18 años.</div>
           <div class="error" id="err-fecha">Campo obligatorio.</div>
+          <div class="error" id="err-fecha-edad">Debes tener al menos 18 años para registrarte.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Género</label>
+          <select id="genero" name="genero">
+            <option value="">-- Selecciona --</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+          </select>
+          <div class="error" id="err-genero">Campo obligatorio.</div>
         </div>
 
         <div class="form-group">
@@ -227,10 +338,15 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
   <script>
+    // Calcular la fecha máxima permitida: hoy - 18 años
+    const hoy = new Date();
+    const fechaMaxima = new Date(hoy.getFullYear() - 18, hoy.getMonth(), hoy.getDate());
+
     flatpickr("#fecha_nacimiento", {
       locale: "es",
       dateFormat: "d/m/Y",
-      maxDate: "2026-12-31",
+      maxDate: fechaMaxima,
+      defaultDate: fechaMaxima,
       disableMobile: true,
       monthSelectorType: "static",
       onReady: function(selectedDates, dateStr, instance) {
@@ -253,7 +369,8 @@
       document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
 
       const campos = [
-        'username', 'email', 'fecha_nacimiento', 'cedula', 'telefono',
+        'username', 'email', 'first_name', 'last_name', 'fecha_nacimiento',
+        'genero', 'cedula', 'telefono',
         'direccion', 'contacto_emergencia', 'numero_emergencia',
         'pass1', 'pass2'
       ];
@@ -272,6 +389,23 @@
           isValid = false;
         }
       });
+
+      // Validar edad mínima (18 años)
+      const fechaInput = document.getElementById('fecha_nacimiento');
+      if (fechaInput.value.trim()) {
+        const partes = fechaInput.value.split('/'); // dd/mm/yyyy
+        const nacimiento = new Date(partes[2], partes[1] - 1, partes[0]);
+
+        let edad = hoy.getFullYear() - nacimiento.getFullYear();
+        const aunNoCumple = (hoy.getMonth() < nacimiento.getMonth()) ||
+            (hoy.getMonth() === nacimiento.getMonth() && hoy.getDate() < nacimiento.getDate());
+        if (aunNoCumple) edad--;
+
+        if (edad < 18) {
+          document.getElementById('err-fecha-edad').style.display = 'block';
+          isValid = false;
+        }
+      }
 
       if (!isValid) {
         e.preventDefault();
